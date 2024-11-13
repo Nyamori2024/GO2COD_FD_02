@@ -1,50 +1,29 @@
 // frontend/src/components/Cart.js
-import React, { useEffect, useState } from 'react';
-import { fetchCart } from '../api/api';
-import { List, ListItem, ListItemText, Typography, CircularProgress } from '@mui/material';
-import { motion } from 'framer-motion';
+import React from 'react';
+import { List, ListItem, ListItemText, Button, Typography } from '@mui/material';
 
-function Cart() {
-  const [cart, setCart] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function getCart() {
-      try {
-        const data = await fetchCart();
-        setCart(data);
-      } catch (error) {
-        console.error('Failed to load cart:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    getCart();
-  }, []);
-
-  if (loading) return <CircularProgress />;
-  if (!cart || !cart.products.length) return <Typography>No items in the cart.</Typography>;
-
+const Cart = ({ cartItems, removeFromCart }) => {
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+    <div>
       <Typography variant="h4" gutterBottom>
-        Cart
+        Your Cart
       </Typography>
-      <List>
-        {cart.products.map((item) => (
-          <ListItem key={item.productId._id}>
-            <ListItemText
-              primary={item.productId.name}
-              secondary={`Quantity: ${item.quantity} - Price: $${item.productId.price}`}
-            />
-          </ListItem>
-        ))}
-      </List>
-      <Typography variant="h5" align="right">
-        Total: ${cart.total}
-      </Typography>
-    </motion.div>
+      {cartItems.length === 0 ? (
+        <Typography variant="h6">Your cart is empty.</Typography>
+      ) : (
+        <List>
+          {cartItems.map((item) => (
+            <ListItem key={item.id}> {/* Use unique id as key */}
+              <ListItemText primary={item.name} secondary={`Price: $${item.price}`} />
+              <Button variant="contained" color="secondary" onClick={() => removeFromCart(item.id)}>
+                Remove
+              </Button>
+            </ListItem>
+          ))}
+        </List>
+      )}
+    </div>
   );
-}
+};
 
 export default Cart;

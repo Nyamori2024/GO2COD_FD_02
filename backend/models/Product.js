@@ -1,4 +1,3 @@
-// backend/models/Product.js
 import mongoose from 'mongoose';
 
 const productSchema = new mongoose.Schema({
@@ -7,6 +6,7 @@ const productSchema = new mongoose.Schema({
   price: { type: Number, required: true },
   category: { type: String, required: true },
   stock: { type: Number, required: true },
+  image: { type: String, required: true }, // Add this line for image path
 });
 
 export default mongoose.model('Product', productSchema);

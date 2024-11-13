@@ -1,11 +1,10 @@
-// frontend/src/components/ProductList.js
-import React, { useEffect, useState } from 'react';
-import { Grid2, Card, CardContent, Typography, Button, CircularProgress, Snackbar } from '@mui/material';
-import { fetchProducts, addToCart } from '../api/api';
-import { motion } from 'framer-motion';
-import { Alert } from '@mui/material';
+// ProductList.js
 
-function ProductList() {
+import React, { useEffect, useState } from 'react';
+import { Grid, Card, CardContent, Typography, Button, CircularProgress, Snackbar } from '@mui/material';
+import { motion } from 'framer-motion';
+
+const ProductList = ({ addToCart }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -13,30 +12,27 @@ function ProductList() {
   const [snackbarMessage, setSnackbarMessage] = useState('');
 
   useEffect(() => {
-    async function getProducts() {
+    const fetchProducts = async () => {
       try {
-        const data = await fetchProducts();
+        const response = await fetch('/api/products');
+        if (!response.ok) {
+          throw new Error('Failed to load products.');
+        }
+        const data = await response.json();
         setProducts(data);
-      } catch (error) {
-        console.error('Failed to load products:', error);
+      } catch (err) {
         setError('Failed to load products. Please try again later.');
       } finally {
         setLoading(false);
       }
-    }
-    getProducts();
+    };
+    fetchProducts();
   }, []);
 
-  const handleAddToCart = async (productId) => {
-    try {
-      await addToCart(productId);
-      setSnackbarMessage('Product added to cart');
-      setSnackbarOpen(true);
-    } catch (error) {
-      console.error('Failed to add product to cart:', error);
-      setSnackbarMessage('Failed to add product to cart. Please try again later.');
-      setSnackbarOpen(true);
-    }
+  const handleAddToCart = (product) => {
+    addToCart(product);
+    setSnackbarMessage(`${product.name} added to cart!`);
+    setSnackbarOpen(true);
   };
 
   const handleCloseSnackbar = () => {
@@ -45,48 +41,42 @@ function ProductList() {
 
   if (loading) return <CircularProgress />;
   if (error) return <Typography color="error">{error}</Typography>;
-  if (!products.length) return <Typography>No products available.</Typography>;
 
   return (
     <div style={{ padding: '20px' }}>
-      <Typography variant="h4" gutterBottom align="center" style={{ fontWeight: 'bold' }}>
-        Product List
-      </Typography>
-      <Grid2 container spacing={4}>
+      <Grid container spacing={4}>
         {products.map((product) => (
-          <Grid2 item xs={12} sm={6} md={4} key={product._id}>
+          <Grid item xs={12} sm={6} md={4} key={product._id}>
             <motion.div whileHover={{ scale: 1.05 }}>
-              <Card variant="outlined" style={{ borderRadius: '12px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
+              <Card elevation={3}>
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  style={{ width: '100%', height: '150px', objectFit: 'cover' }}
+                  onError={(e) => {
+                    e.target.src = 'path/to/placeholder-image.jpg'; // Fallback in case image fails to load
+                  }}
+                />
                 <CardContent>
-                  <Typography variant="h5" style={{ fontWeight: 'bold' }}>{product.name}</Typography>
-                  <Typography variant="body2" color="textSecondary" style={{ marginBottom: '10px' }}>
-                    {product.description}
-                  </Typography>
-                  <Typography variant="h6" color="primary" style={{ marginBottom: '10px' }}>
-                    ${product.price.toFixed(2)}
-                  </Typography>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    fullWidth
-                    onClick={() => handleAddToCart(product._id)}
-                    style={{ borderRadius: '8px' }}
-                  >
+                  <Typography variant="h6">{product.name}</Typography>
+                  <Typography variant="body2">{product.description}</Typography>
+                  <Typography variant="h6" color="primary">${product.price.toFixed(2)}</Typography>
+                  <Button variant="contained" color="primary" onClick={() => handleAddToCart(product)}>
                     Add to Cart
                   </Button>
                 </CardContent>
               </Card>
             </motion.div>
-          </Grid2>
+          </Grid>
         ))}
-      </Grid2>
-      <Snackbar open={snackbarOpen} autoHideDuration={6000} onClose={handleCloseSnackbar}>
-        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
+      </Grid>
+      <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={handleCloseSnackbar}>
+        <Typography variant="body2" style={{ backgroundColor: '#1976d2', color: '#fff', padding: '10px' }}>
           {snackbarMessage}
-        </Alert>
+        </Typography>
       </Snackbar>
     </div>
   );
-}
+};
 
 export default ProductList;

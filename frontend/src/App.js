@@ -1,24 +1,40 @@
 // frontend/src/App.js
-import React from 'react';
-import { ThemeProvider } from '@mui/material/styles';
-import { Container, CssBaseline, Typography } from '@mui/material';
+import React, { useState } from 'react';
+import { ThemeProvider, CssBaseline, Container } from '@mui/material';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import theme from './theme';
+import { lightTheme, darkTheme } from './theme';
 import ProductList from './components/ProductList';
 import Cart from './components/Cart';
+import Navbar from './components/Navbar';
 
 function App() {
+  const [cartItems, setCartItems] = useState([]);
+  const [darkMode, setDarkMode] = useState(false);
+
+  const addToCart = (product) => {
+    setCartItems((prevItems) => [...prevItems, product]);
+    localStorage.setItem('cart', JSON.stringify([...cartItems, product]));
+  };
+
+  const removeFromCart = (productId) => {
+    const updatedCart = cartItems.filter(item => item.id !== productId);
+    setCartItems(updatedCart);
+    localStorage.setItem('cart', JSON.stringify(updatedCart));
+  };
+
+  const toggleTheme = () => {
+    setDarkMode(!darkMode);
+  };
+
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={darkMode ? darkTheme : lightTheme}>
       <CssBaseline />
       <Router>
-        <Container maxWidth="lg">
-          <Typography variant="h3" align="center" gutterBottom>
-            E-Commerce App
-          </Typography>
+        <Navbar toggleTheme={toggleTheme} darkMode={darkMode} cartCount={cartItems.length} />
+        <Container maxWidth="lg" style={{ paddingTop: '64px' }}>
           <Routes>
-            <Route path="/" element={<ProductList />} />
-            <Route path="/cart" element={<Cart />} />
+            <Route path="/" element={<ProductList addToCart={addToCart} />} />
+            <Route path="/cart" element={<Cart cartItems={cartItems} removeFromCart={removeFromCart} />} />
           </Routes>
         </Container>
       </Router>
