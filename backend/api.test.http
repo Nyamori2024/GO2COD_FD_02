@@ -1,10 +1,11 @@
 POST http://localhost:5000/api/products
 Content-Type: application/json
 
-{
-  "name": "Sample Product this",
-  "description": "This is a sample product for testing.",
-  "price": 30.99,
-  "category": "electronics",
-  "stock": 1000
-}
+   {
+    "name": "Sample Product 7",
+    "description": "A sample product.",
+    "price": 23.99,
+    "category": "electronics",
+    "stock": 1400,
+    "image": "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400"
+  }

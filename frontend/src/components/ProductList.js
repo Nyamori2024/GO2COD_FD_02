@@ -1,5 +1,3 @@
-// ProductList.js
-
 import React, { useEffect, useState } from 'react';
 import { Grid, Card, CardContent, Typography, Button, CircularProgress, Snackbar } from '@mui/material';
 import { motion } from 'framer-motion';
@@ -54,7 +52,7 @@ const ProductList = ({ addToCart }) => {
                   alt={product.name}
                   style={{ width: '100%', height: '150px', objectFit: 'cover' }}
                   onError={(e) => {
-                    e.target.src = 'path/to/placeholder-image.jpg'; // Fallback in case image fails to load
+                    e.target.src = 'path/to/placeholder-image.jpg'; // Ensure this path is correct
                   }}
                 />
                 <CardContent>
