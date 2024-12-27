@@ -1,4 +1,3 @@
-// frontend/src/App.js
 import React, { useState } from 'react';
 import { ThemeProvider, CssBaseline, Container } from '@mui/material';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
@@ -12,14 +11,17 @@ function App() {
   const [darkMode, setDarkMode] = useState(false);
 
   const addToCart = (product) => {
-    setCartItems((prevItems) => [...prevItems, product]);
-    localStorage.setItem('cart', JSON.stringify([...cartItems, product]));
-  };
-
-  const removeFromCart = (productId) => {
-    const updatedCart = cartItems.filter(item => item.id !== productId);
-    setCartItems(updatedCart);
-    localStorage.setItem('cart', JSON.stringify(updatedCart));
+    setCartItems((prevItems) => {
+      const existingItem = prevItems.find((item) => item._id === product._id); // Ensure you're using the correct ID
+      if (existingItem) {
+        return prevItems.map((item) =>
+          item._id === product._id ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      }
+      return [...prevItems, { ...product, quantity: 1 }];
+    });
+    // Update localStorage after the state has been updated
+    localStorage.setItem('cart', JSON.stringify([...cartItems, { ...product, quantity: 1 }]));
   };
 
   const toggleTheme = () => {
@@ -34,7 +36,7 @@ function App() {
         <Container maxWidth="lg" style={{ paddingTop: '64px' }}>
           <Routes>
             <Route path="/" element={<ProductList addToCart={addToCart} />} />
-            <Route path="/cart" element={<Cart cartItems={cartItems} removeFromCart={removeFromCart} />} />
+            <Route path="/cart" element={<Cart cartItems={cartItems} setCartItems={setCartItems} />} />
           </Routes>
         </Container>
       </Router>
